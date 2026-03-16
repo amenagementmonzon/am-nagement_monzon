@@ -144,6 +144,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  /* Prevent any horizontal overflow at the root */
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -151,11 +154,23 @@ body {
   background-color: var(--theme-background, hsl(0, 0%, 100%));
   font-family: var(--theme-font-body, var(--font-sans));
   overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100dvh;          /* dynamic viewport height: safe on mobile browsers */
   line-height: 1.65;
   font-weight: 300;
   letter-spacing: 0.01em;
   transition: background-color 0.6s cubic-bezier(0.16,1,0.3,1),
               color 0.6s cubic-bezier(0.16,1,0.3,1);
+  /* Prevent elastic overscroll from revealing background colour beneath panels */
+  overscroll-behavior-y: none;
+}
+
+/* Root div — full height stretch */
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* ── Custom scrollbar — theme-driven ──────────────── */
@@ -611,8 +626,156 @@ body {
 
 /* ── Mobile safe area ─────────────────────────────────── */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
   .safe-top    { padding-top:    env(safe-area-inset-top); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE GLOBAL CONTAINMENT
+   All pages and panels must fit any device without horizontal
+   overflow or clipped content.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Full-width containers never leak outside viewport */
+.max-w-\[1320px\],
+.max-w-\[1100px\],
+.max-w-7xl,
+.max-w-6xl,
+.max-w-5xl,
+.max-w-4xl,
+.max-w-3xl,
+.max-w-2xl,
+.max-w-xl {
+  max-width: min(100vw, var(--container-max, 1320px));
+}
+
+/* Admin shell — ensure panels scroll, never clip */
+.admin-bg {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* All modals / drawers must be fully scrollable on small screens */
+[role="dialog"],
+.modal-overlay {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100dvh;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table wrappers in admin panels always get horizontal scroll */
+.table-wrapper,
+table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* Images / media should never overflow their container */
+img, video, canvas, svg, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Pre-formattet text — wrap on small screens */
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Prevent long un-breakable strings from busting layout */
+p, li, span, td, th, label, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Flex rows that might wrap on mobile */
+@media (max-width: 640px) {
+  .flex-row-mobile-wrap {
+    flex-wrap: wrap;
+  }
+
+  /* AdminShell sidebar on mobile: slide out, not overlay that blocks interaction */
+  .admin-sidebar-mobile {
+    position: fixed;
+    inset-y: 0;
+    left: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+    will-change: transform;
+  }
+  .admin-sidebar-mobile.open {
+    transform: translateX(0);
+  }
+
+  /* Splash: hide desktop button row, show mobile sheet */
+  .splash-service-buttons-desktop {
+    display: none !important;
+  }
+  .splash-mobile-sheet {
+    display: block !important;
+  }
+}
+
+/* Landscape phone / very short screens — keep mobile sheet tight */
+@media (max-width: 640px) and (max-height: 520px) {
+  .splash-mobile-sheet {
+    max-height: 68dvh !important;
+  }
+}
+
+/* Narrow tablet portrait (641–820px) — show desktop row but allow wrapping */
+@media (min-width: 641px) and (max-width: 820px) {
+  .splash-service-buttons-desktop {
+    display: flex !important;
+    flex-wrap: wrap;        /* buttons go 2-on-top + 1-bottom on very tight widths  */
+    gap: clamp(6px, 1.2vw, 12px) !important;
+  }
+
+  /* Each button gets a sensible minimum so label is never crushed */
+  .splash-service-buttons-desktop > * {
+    flex: 1 1 min(220px, 100%);
+    min-width: 0;
+  }
+
+  .splash-mobile-sheet {
+    display: none !important;
+  }
+}
+
+/* Desktop (>820px): clean row, no wrapping */
+@media (min-width: 821px) {
+  .splash-service-buttons-desktop {
+    display: flex !important;
+    flex-wrap: nowrap;
+  }
+  .splash-mobile-sheet {
+    display: none !important;
+  }
+}
+
+/* Medium screens — tighten section padding */
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 60px;
+    --section-pad-y: 4rem;
+    --section-pad-y-sm: 2.5rem;
+  }
+  .section-y {
+    padding-top: var(--section-pad-y);
+    padding-bottom: var(--section-pad-y);
+  }
+  /* Horizontal padding on all page containers */
+  .max-w-\[1320px\],
+  .max-w-\[1100px\] {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
 import { useQuery } from "@animaapp/playground-react-sdk";
-import { Check, ShoppingCart, Repeat, Buildings, Leaf, Snowflake, Sun, Lightning, House, ArrowUpRight, Star } from "@phosphor-icons/react";
+import { Check, ShoppingCart, Repeat, Buildings, Leaf, Snowflake, Sun, Lightning, House, ArrowUpRight, Star, X } from "@phosphor-icons/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK_SERVICES = [
@@ -47,15 +47,20 @@ export default function MaintenancePage() {
   const [cat, setCat] = useState("all");
   const [added, setAdded] = useState<Set<string>>(new Set());
   const [view, setView] = useState<"services"|"subscriptions">("services");
+  const [modalSvc, setModalSvc] = useState<typeof FALLBACK_SERVICES[0] | null>(null);
+  const [modalSub, setModalSub] = useState<typeof SUBSCRIPTIONS[0] | null>(null);
 
   const { data: services } = useQuery("ServiceProduct", { where: { status: "active" } });
   const list = (services && services.length > 0) ? services : FALLBACK_SERVICES;
   const filtered = cat === "all" ? list : list.filter(s => s.category === cat);
 
-  const handleAdd = (id: string) => {
+  const handleAdd = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setAdded(prev => { const n = new Set(prev); n.add(id); return n; });
     setTimeout(() => setAdded(prev => { const n = new Set(prev); n.delete(id); return n; }), 2000);
   };
+
+  const closeModal = () => { setModalSvc(null); setModalSub(null); };
 
   return (
     <>
@@ -64,6 +69,98 @@ export default function MaintenancePage() {
         <meta name="description" content="Residential and commercial maintenance service packages and subscriptions." />
       </Helmet>
       <PageShell>
+        {/* ── Service Detail Modal ── */}
+        {(modalSvc || modalSub) && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+            onClick={closeModal}
+          >
+            <div
+              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+              style={{ animation: "scaleIn 0.22s cubic-bezier(.34,1.56,.64,1) both" }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-charcoal transition-all cursor-pointer"
+                aria-label="Close"
+              >
+                <X size={18} weight="bold" />
+              </button>
+
+              {modalSvc && (() => {
+                const feats = (() => { try { return JSON.parse(modalSvc.features); } catch { return []; } })();
+                const isAdded = added.has(modalSvc.id);
+                return (
+                  <>
+                    {modalSvc.popular === "yes" && (
+                      <div className="px-6 py-2.5 bg-gold text-charcoal text-[10px] font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <Star size={11} weight="fill" /> {t.maintenance.popular}
+                      </div>
+                    )}
+                    <div className="p-7">
+                      <div className="flex items-start gap-4 mb-5">
+                        <div className="w-12 h-12 rounded-2xl bg-charcoal/5 flex items-center justify-center flex-shrink-0 text-charcoal">
+                          {CATEGORY_ICONS[modalSvc.category] ?? <Buildings size={20} />}
+                        </div>
+                        <div>
+                          <h3 className="font-headline font-bold text-xl text-charcoal leading-tight">{modalSvc.name}</h3>
+                          <span className="font-mono text-[11px] text-gray-400 capitalize">{modalSvc.category.replace("-", " ")}</span>
+                        </div>
+                      </div>
+                      <p className="font-sans text-sm text-gray-500 leading-relaxed mb-6">{modalSvc.description}</p>
+                      {feats.length > 0 && (
+                        <ul className="flex flex-col gap-2.5 mb-6">
+                          {feats.map((f: string) => (
+                            <li key={f} className="flex items-center gap-2.5 text-sm font-sans text-gray-700">
+                              <span className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                                <Check size={12} weight="bold" className="text-green-500" />
+                              </span>
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="border-t border-gray-100 pt-5 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-headline font-bold text-2xl text-charcoal">{modalSvc.price}</p>
+                          <p className="font-mono text-[11px] text-gray-400 uppercase tracking-wide">{modalSvc.priceType}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          {modalSvc.subscriptionAvailable === "yes" && (
+                            <button onClick={e => handleAdd(`sub-${modalSvc.id}`, e)} className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-sans font-medium rounded-xl border transition-all cursor-pointer ${added.has(`sub-${modalSvc.id}`) ? "bg-green-500 text-white border-green-500" : "border-gold text-gold hover:bg-gold hover:text-charcoal"}`}>
+                              <Repeat size={14} /> {added.has(`sub-${modalSvc.id}`) ? t.maintenance.added : t.maintenance.subscribe}
+                            </button>
+                          )}
+                          <button onClick={e => handleAdd(modalSvc.id, e)} className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-sans font-medium rounded-xl transition-all cursor-pointer ${isAdded ? "bg-green-500 text-white" : "bg-charcoal text-gold hover:bg-gold hover:text-charcoal"}`}>
+                            <ShoppingCart size={14} /> {isAdded ? t.maintenance.added : t.maintenance.add}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+
+              {modalSub && (
+                <div className="p-7">
+                  <span className="inline-block px-3 py-1 text-[10px] font-mono bg-gold/10 text-gold rounded-full mb-4">{modalSub.badge}</span>
+                  <h3 className="font-headline font-bold text-2xl text-charcoal mb-3">{modalSub.name}</h3>
+                  <p className="font-sans text-sm text-gray-500 leading-relaxed mb-6">{modalSub.desc}</p>
+                  <div className="border-t border-gray-100 pt-5 flex items-center justify-between gap-3">
+                    <p className="font-headline font-bold text-2xl text-charcoal">{modalSub.price}</p>
+                    <button className="px-6 py-2.5 text-sm font-sans font-semibold bg-charcoal text-gold rounded-xl hover:bg-gold hover:text-charcoal transition-all duration-300 cursor-pointer">
+                      {t.maintenance.getStarted}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <PageHero eyebrow={t.maintenance.pageEyebrow} title={t.maintenance.pageTitle} subtitle={t.maintenance.pageSubtitle} />
 
         {/* Toggle */}
@@ -91,7 +188,7 @@ export default function MaintenancePage() {
                   const feats = (() => { try { return JSON.parse(svc.features); } catch { return []; } })();
                   const isAdded = added.has(svc.id);
                   return (
-                    <div key={svc.id} className={`group flex flex-col bg-white rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/5 ${svc.popular === "yes" ? "border-gold/40" : "border-gray-200"}`}>
+                    <div key={svc.id} onClick={() => setModalSvc(svc as any)} className={`group flex flex-col bg-white rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/5 cursor-pointer active:scale-[0.98] ${svc.popular === "yes" ? "border-gold/40" : "border-gray-200"}`}>
                       {svc.popular === "yes" && (
                         <div className="px-5 py-2 bg-gold text-charcoal text-[10px] font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
                           <Star size={11} weight="fill" /> Most Popular
@@ -124,11 +221,11 @@ export default function MaintenancePage() {
                           </div>
                           <div className="flex gap-2">
                             {svc.subscriptionAvailable === "yes" && (
-                              <button onClick={() => handleAdd(`sub-${svc.id}`)} className={`flex items-center gap-1 px-3 py-2 text-[11px] font-sans rounded-xl border transition-all cursor-pointer ${added.has(`sub-${svc.id}`) ? "bg-green-500 text-white border-green-500" : "border-gold text-gold hover:bg-gold hover:text-charcoal"}`}>
+                              <button onClick={e => handleAdd(`sub-${svc.id}`, e)} className={`flex items-center gap-1 px-3 py-2 text-[11px] font-sans rounded-xl border transition-all cursor-pointer ${added.has(`sub-${svc.id}`) ? "bg-green-500 text-white border-green-500" : "border-gold text-gold hover:bg-gold hover:text-charcoal"}`}>
                                 <Repeat size={12} /> {added.has(`sub-${svc.id}`) ? t.maintenance.added : t.maintenance.subscribe}
                               </button>
                             )}
-                            <button onClick={() => handleAdd(svc.id)} className={`flex items-center gap-1 px-3 py-2 text-[11px] font-sans rounded-xl transition-all cursor-pointer ${isAdded ? "bg-green-500 text-white" : "bg-charcoal text-gold hover:bg-gold hover:text-charcoal"}`}>
+                            <button onClick={e => handleAdd(svc.id, e)} className={`flex items-center gap-1 px-3 py-2 text-[11px] font-sans rounded-xl transition-all cursor-pointer ${isAdded ? "bg-green-500 text-white" : "bg-charcoal text-gold hover:bg-gold hover:text-charcoal"}`}>
                               <ShoppingCart size={12} /> {isAdded ? t.maintenance.added : t.maintenance.add}
                             </button>
                           </div>
@@ -151,7 +248,7 @@ export default function MaintenancePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {SUBSCRIPTIONS.map(sub => (
-                  <div key={sub.id} className={`group flex flex-col p-6 rounded-2xl border-2 relative bg-white hover:shadow-xl hover:shadow-black/5 transition-all duration-300 ${sub.color}`}>
+                  <div key={sub.id} onClick={() => setModalSub(sub)} className={`group flex flex-col p-6 rounded-2xl border-2 relative bg-white hover:shadow-xl hover:shadow-black/5 transition-all duration-300 cursor-pointer active:scale-[0.98] ${sub.color}`}>
                     <span className="inline-block px-2.5 py-0.5 text-[9px] font-mono bg-gold/10 text-gold rounded-full mb-4 w-fit">{sub.badge}</span>
                     <h3 className="font-headline font-bold text-lg text-charcoal mb-2">{sub.name}</h3>
                     <p className="font-sans text-sm text-gray-500 leading-relaxed flex-1 mb-5">{sub.desc}</p>

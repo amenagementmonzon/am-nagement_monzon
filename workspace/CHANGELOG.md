@@ -20,6 +20,22 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 <changelog>
 <!-- NEXT_ENTRY_HERE -->
 
+## 2026-03-16 — Mobile "Which are your needs" panel: centered modal + toggle
+- `ServiceSelector.tsx` `MobilePanel`: changed from bottom slide-up to centered scale-in modal (`top:50%, left:50%, translate(-50%,-50%) scale()`)
+- Mobile grid button: `onClick` changed from `setMobileOpen(true)` to `setMobileOpen(o => !o)` — tapping again closes it
+- Panel now has full `border-radius` (rounded-2xl), deep box-shadow, and scale+opacity animation instead of translateY
+
+## 2026-03-16 — Fix: Header Height Mismatch on Mobile (Content Under Nav)
+- `HeaderNav.tsx`: inner div changed from `h-[76px]` hardcoded to `style={{ height: "var(--nav-height, 76px)" }}`
+- `index.css`: mobile `--nav-height` corrected to `60px` (was `64px` while header rendered at `76px`)
+- Root cause: CSS sets `--nav-height` but header element itself didn't read it, causing overlap on mobile
+
+## 2026-03-16 — Responsive Splash & ServiceSelector — All Viewports
+- `ServiceSelector.tsx` `MobilePanel`: `maxHeight` → `min(85vh,85dvh)`; all padding/font sizes replaced with `clamp()` fluid values; item gap fluid; icon size fluid
+- `SplashScreen.tsx` mobile sheet: `maxHeight: min(72vh,72dvh)` + `overflowY:auto` added; all `px`/`rem` padding swapped to `clamp()`; label font fluid; `minWidth:0` on button text block
+- `SplashScreen.tsx` desktop buttons: gap tightened to `clamp(6px,1.2vw,16px)`
+- `index.css`: added landscape-phone guard (`≤640px + ≤520px height` → 68dvh); tablet range `641–820px` gets `flex-wrap:wrap` + `flex:1 1 min(220px,100%)` on desktop button row; `>820px` stays nowrap row
+
 ## 2026-03-16 — Full Trilingual Platform (EN/FR/ES) — Complete Coverage
 - `translations.ts` fully rebuilt: 16 sections (nav, hero, services, portfolio, store, community, contact, footer, about, blog, academy, maintenance, portal, admin, billing, common) — 500+ keys per language, 3 languages (EN/FR/ES)
 - `admin` section added: covers all 33 panel labels, sidebar groups, dashboard stats/actions, projects CRUD, clients CRUD, employees CRUD, media, settings, notifications, and new `i18n` sub-section

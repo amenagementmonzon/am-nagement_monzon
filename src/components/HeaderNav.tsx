@@ -294,7 +294,7 @@ export default function HeaderNav() {
           aria-hidden="true"
         />
       )}
-      <div className="max-w-[1320px] mx-auto px-8 md:px-12 flex items-center justify-between h-[76px]">
+        <div className="max-w-[1320px] mx-auto px-4 md:px-8 lg:px-12 flex items-center justify-between" style={{ height: "var(--nav-height, 76px)" }}>
 
         {/* Logo — editorial wordmark */}
         <Link

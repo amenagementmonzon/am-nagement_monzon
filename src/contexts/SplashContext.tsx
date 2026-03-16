@@ -51,7 +51,8 @@ export const DEFAULT_SPLASH_SETTINGS: SplashSettings = {
 };
 
 const SPLASH_SETTINGS_KEY = "monzon-splash-settings-v1";
-const SPLASH_SEEN_KEY = "monzon-splash-seen-v1";
+// localStorage: splash stays dismissed until manually reset
+const SPLASH_SEEN_KEY = "monzon-splash-seen-v2";
 
 type SplashContextType = {
   settings: SplashSettings;
@@ -112,11 +113,13 @@ export function SplashProvider({ children }: { children: React.ReactNode }) {
   const dismissSplash = useCallback(() => {
     setSplashSeen(true);
     localStorage.setItem(SPLASH_SEEN_KEY, "true");
+    console.log("__ANIMA_DBG__ dismissSplash called — splashSeen set to true");
   }, []);
 
   const resetSplashForPreview = useCallback(() => {
     setSplashSeen(false);
     localStorage.removeItem(SPLASH_SEEN_KEY);
+    console.log("__ANIMA_DBG__ resetSplashForPreview called — splashSeen cleared");
   }, []);
 
   return (

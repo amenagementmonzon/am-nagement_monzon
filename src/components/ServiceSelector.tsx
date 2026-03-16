@@ -62,61 +62,119 @@ function MobilePanel({
   onClose: () => void;
   onSelect: (id: string) => void;
 }) {
+  // Delayed "fully hidden" state so pointer-events only clear after slide-out finishes
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    if (open) {
+      setVisible(true);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      // Wait for the 0.5s slide-out transition before removing from interaction layer
+      const id = setTimeout(() => setVisible(false), 520);
+      return () => clearTimeout(id);
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
+  if (!visible && !open) return null;
+
   return (
-    <>
-      {/* Backdrop */}
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9990,
+        pointerEvents: open ? "all" : "none",
+      }}
+      className="md:hidden"
+    >
+      {/* Backdrop — clicking/touching it closes the panel */}
       <div
-        className="fixed inset-0 z-[9990] bg-black/60 backdrop-blur-sm md:hidden"
         style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0,0,0,0.65)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
           opacity: open ? 1 : 0,
-          pointerEvents: open ? "all" : "none",
           transition: "opacity 0.38s ease",
         }}
         onClick={onClose}
       />
-      {/* Slide-up panel */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-[9991] md:hidden"
-        style={{
-          transform: open ? "translateY(0)" : "translateY(110%)",
-          transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
-        }}
-      >
-        <div className="glass-dark rounded-t-2xl pt-4 pb-8 px-5 safe-bottom">
-          {/* Handle bar */}
-          <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
 
-          <div className="mb-5">
-            <p className="font-mono text-[10px] tracking-[0.28em] text-gold/60 uppercase mb-1">
+      {/* Centered panel */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "min(92vw, 380px)",
+          transform: open
+            ? "translate(-50%, -50%) scale(1)"
+            : "translate(-50%, -50%) scale(0.88)",
+          opacity: open ? 1 : 0,
+          transition: "transform 0.42s cubic-bezier(0.16,1,0.3,1), opacity 0.32s ease",
+          zIndex: 1,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="glass-dark rounded-2xl"
+          style={{
+            maxHeight: "min(85vh, 85dvh)",
+            overflowY: "auto",
+            overscrollBehavior: "contain",
+            paddingTop: "clamp(18px, 4vw, 26px)",
+            paddingBottom: "clamp(18px, 4vw, 26px)",
+            paddingLeft: "clamp(16px, 4vw, 24px)",
+            paddingRight: "clamp(16px, 4vw, 24px)",
+            boxShadow: "0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
+          }}
+        >
+          {/* Close handle — tap to close */}
+          <div
+            className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5 cursor-pointer"
+            onClick={onClose}
+          />
+
+          <div style={{ marginBottom: "clamp(14px, 3vw, 20px)" }}>
+            <p className="font-mono tracking-[0.28em] text-gold/60 uppercase mb-1"
+               style={{ fontSize: "clamp(8px, 2.2vw, 10px)" }}>
               Bienvenue · Welcome
             </p>
-            <h3 className="font-headline text-warm-white text-[1.4rem] font-light">
+            <h3 className="font-headline text-warm-white font-light"
+                style={{ fontSize: "clamp(1.1rem, 5vw, 1.4rem)" }}>
               Which are your needs?
             </h3>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "clamp(8px, 2vw, 12px)" }}>
             {SERVICES.map((svc, i) => (
               <button
                 key={svc.id}
                 onClick={() => onSelect(svc.id)}
-                className="group w-full text-left flex items-center gap-4 px-4 py-4 rounded-xl border border-white/[0.07] bg-white/[0.03] active:bg-white/[0.08] transition-all duration-300"
-                style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
+                className="group w-full text-left flex items-center rounded-xl border border-white/[0.07] bg-white/[0.03] active:bg-white/[0.08] transition-all duration-300"
+                style={{
+                  transitionDelay: open ? `${i * 60}ms` : "0ms",
+                  gap: "clamp(10px, 3vw, 16px)",
+                  padding: "clamp(10px, 3vw, 16px) clamp(10px, 3.5vw, 16px)",
+                }}
               >
-                <span className="shrink-0 w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 group-active:border-gold/40">
+                <span className="shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 group-active:border-gold/40"
+                      style={{ width: "clamp(34px, 9vw, 40px)", height: "clamp(34px, 9vw, 40px)" }}>
                   {svc.icon}
                 </span>
-                <div className="flex flex-col">
-                  <span className="font-headline text-warm-white text-[1.1rem] font-medium leading-tight">
+                <div className="flex flex-col min-w-0">
+                  <span className="font-headline text-warm-white font-medium leading-tight"
+                        style={{ fontSize: "clamp(0.92rem, 3.8vw, 1.05rem)" }}>
                     {svc.label}
                   </span>
-                  <span className="font-mono text-[0.6rem] tracking-[0.18em] uppercase text-gray-500 mt-0.5">
+                  <span className="font-mono tracking-[0.16em] uppercase text-gray-500 mt-0.5"
+                        style={{ fontSize: "clamp(0.5rem, 1.6vw, 0.58rem)" }}>
                     {svc.sublabel}
                   </span>
                 </div>
@@ -128,7 +186,7 @@ function MobilePanel({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -317,7 +375,7 @@ export function WhichAreYourNeedsButton() {
       {/* Mobile icon button */}
       <button
         className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-white/10 text-gray-400 hover:border-gold/30 hover:text-gold/80 transition-all duration-300 focus:outline-none cursor-pointer"
-        onClick={() => setMobileOpen(true)}
+        onClick={() => setMobileOpen(o => !o)}
         aria-label="Which are your needs — choose service"
         title="Which are your needs"
       >

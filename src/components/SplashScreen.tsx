@@ -623,26 +623,27 @@ export default function SplashScreen() {
   }, [speed]);
 
   const handleSelect = useCallback((button: SplashButton) => {
+    console.log("__ANIMA_DBG__ handleSelect fired", button.id);
     const preset = presets.find(p => p.id === button.themePresetId);
     if (preset) { applyPreset(preset); saveTheme(); }
+    dismissSplash();
     setIsExiting(true);
     setTimeout(() => {
-      dismissSplash();
       navigate(button.destination);
-    }, 1000);
+    }, 800);
   }, [presets, applyPreset, saveTheme, dismissSplash, navigate]);
 
   const handleSkip = useCallback(() => {
+    console.log("__ANIMA_DBG__ handleSkip fired");
+    dismissSplash();
     setIsExiting(true);
-    setTimeout(() => dismissSplash(), 800);
   }, [dismissSplash]);
 
   const handleLogoClick = useCallback(() => {
+    console.log("__ANIMA_DBG__ handleLogoClick fired");
+    dismissSplash();
     setIsExiting(true);
-    setTimeout(() => {
-      dismissSplash();
-      navigate("/");
-    }, 800);
+    setTimeout(() => navigate("/"), 800);
   }, [dismissSplash, navigate]);
 
   const BG: Record<string, string> = {
@@ -798,12 +799,13 @@ export default function SplashScreen() {
           />
         </div>
 
-        {/* Service selection buttons */}
+        {/* Service selection buttons — row on desktop only */}
         <div
+          className="splash-service-buttons-desktop"
           style={{
             display:       "flex",
             flexDirection: "row",
-            gap:           "clamp(8px, 1.4vw, 16px)",
+            gap:           "clamp(6px, 1.2vw, 16px)",
             width:         "100%",
             alignItems:    "stretch",
           }}
@@ -816,6 +818,105 @@ export default function SplashScreen() {
               visible={phase === "buttons"}
               onSelect={handleSelect}
             />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Mobile bottom sheet (buttons) ─────────────── */}
+      <div
+        className="splash-mobile-sheet"
+        style={{
+          position:       "absolute",
+          left:           0,
+          right:          0,
+          bottom:         0,
+          zIndex:         4,
+          transition:     "transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease",
+          transform:      phase === "buttons" ? "translateY(0)" : "translateY(110%)",
+          opacity:        phase === "buttons" ? 1 : 0,
+          maxHeight:      "min(72vh, 72dvh)",
+          overflowY:      "auto",
+          overscrollBehavior: "contain",
+        }}
+      >
+        {/* Drag handle bar */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: "clamp(8px, 2vw, 12px)", paddingBottom: "4px" }}>
+          <div style={{ width: "36px", height: "4px", borderRadius: "2px", background: "rgba(255,255,255,0.18)" }} />
+        </div>
+
+        {/* Prompt line */}
+        <div style={{
+          textAlign:     "center",
+          paddingBottom: "clamp(6px, 1.5vw, 10px)",
+          paddingTop:    "2px",
+        }}>
+          <span style={{
+            fontFamily:    "'JetBrains Mono', monospace",
+            fontSize:      "clamp(0.46rem, 1.8vw, 0.52rem)",
+            letterSpacing: "0.26em",
+            textTransform: "uppercase",
+            color:         "rgba(212,160,23,0.50)",
+          }}>
+            {settings.questionText}
+          </span>
+        </div>
+
+        {/* Button list */}
+        <div style={{
+          display:        "flex",
+          flexDirection:  "column",
+          gap:            "1px",
+          paddingLeft:    "clamp(10px, 3.5vw, 16px)",
+          paddingRight:   "clamp(10px, 3.5vw, 16px)",
+          paddingBottom:  "max(env(safe-area-inset-bottom, 0px), 20px)",
+        }}>
+          {settings.buttons.map((btn, i) => (
+            <button
+              key={btn.id}
+              onClick={() => handleSelect(btn)}
+              style={{
+                display:        "flex",
+                alignItems:     "center",
+                justifyContent: "space-between",
+                padding:        `clamp(10px, 3vw, 16px) clamp(12px, 4vw, 20px)`,
+                background:     "rgba(255,255,255,0.035)",
+                border:         "1px solid rgba(255,255,255,0.07)",
+                borderRadius:   i === 0 ? "12px 12px 4px 4px" : i === settings.buttons.length - 1 ? "4px 4px 12px 12px" : "4px",
+                cursor:         "pointer",
+                textAlign:      "left",
+                transition:     `background 0.3s ease, opacity 0.6s ease ${0.08 + i * 0.1}s, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${0.08 + i * 0.1}s`,
+                opacity:        phase === "buttons" ? 1 : 0,
+                transform:      phase === "buttons" ? "translateX(0)" : "translateX(24px)",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  fontSize:   "clamp(0.95rem, 4.5vw, 1.15rem)",
+                  fontWeight: 500,
+                  color:      "rgba(250,248,245,0.92)",
+                  lineHeight: 1.2,
+                }}>
+                  {btn.label}
+                </div>
+                <div style={{
+                  fontFamily:    "'Outfit', system-ui, sans-serif",
+                  fontSize:      "clamp(0.52rem, 1.8vw, 0.60rem)",
+                  fontWeight:    300,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color:         "rgba(212,160,23,0.60)",
+                  marginTop:     "3px",
+                }}>
+                  {btn.sublabel}
+                </div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"
+                style={{ flexShrink: 0, marginLeft: "12px", color: "rgba(212,160,23,0.55)" }}>
+                <path d="M4 10H16M11 5L16 10L11 15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="square"/>
+              </svg>
+            </button>
           ))}
         </div>
       </div>
