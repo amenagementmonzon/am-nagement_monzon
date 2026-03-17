@@ -8,6 +8,7 @@
  * ║  touch the route tree below.                                ║
  * ╚══════════════════════════════════════════════════════════════╝
  */
+import AdminRoute from "@/components/AdminRoute";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -72,8 +73,23 @@ function AppRoutes() {
         <Route path="/portal/:section"  element={<ClientPortalPage />} />
 
         {/* ── ADMIN PANEL ─────────────────────────────── */}
-        <Route path="/admin"            element={<AdminPage />} />
-        <Route path="/admin/:panel"     element={<AdminPage />} />
+        <Route
+  path="/admin"
+  element={
+    <AdminRoute>
+      <AdminPage />
+    </AdminRoute>
+  }
+/>
+
+<Route
+  path="/admin/:panel"
+  element={
+    <AdminRoute>
+      <AdminPage />
+    </AdminRoute>
+  }
+/>
       </Routes>
     </>
   );
