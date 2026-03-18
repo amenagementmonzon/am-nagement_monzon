@@ -4,7 +4,7 @@ import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
 import ThreeDContainer from "@/components/ThreeDContainer";
 import { ArrowUpRight, Play } from "@phosphor-icons/react";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = [
@@ -27,10 +27,12 @@ export default function PortfolioPage() {
   const [filter, setFilter] = useState("All");
   const [filterLabel, setFilterLabel] = useState(t.portfolio.filterAll);
 
-  const { data: projects, isPending } = useQuery("Project", { orderBy: { createdAt: "desc" } });
+  // const { data: projects, isPending } = useQuery("Project", { orderBy: { createdAt: "desc" } });
+  const projects: any = [];
+  const isPending = false;
 
   const items = (projects && projects.length > 0) ? projects : FALLBACK;
-  const filtered = filter === "All" ? items : items.filter((i) => i.category === filter);
+  const filtered = filter === "All" ? items : items.filter((i: any) => i.category === filter);
 
   return (
     <>
@@ -59,7 +61,7 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {filtered.map((item, i) => (
+                {filtered.map((item: any, i: number) => (
                   <div key={item.title + i}
                     className={["relative overflow-hidden rounded-2xl group cursor-pointer", item.size === "tall" ? "row-span-2" : "", item.size === "wide" ? "col-span-2" : ""].join(" ")}
                     style={{ minHeight: item.size === "tall" ? "480px" : item.size === "wide" ? "260px" : "240px" }}>
@@ -93,3 +95,4 @@ export default function PortfolioPage() {
     </>
   );
 }
+

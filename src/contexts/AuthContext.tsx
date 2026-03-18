@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { useAuth as useSDKAuth } from "@animaapp/playground-react-sdk";
+// import { useAuth as useSDKAuth } from "@animaapp/playground-react-sdk"; // Removed SDK
 
 /* ─────────────────────────────────────────────
    Permission catalogue
@@ -87,7 +87,7 @@ export type AuthContextType = {
 const AuthCtx = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { user, isPending, isAnonymous, login, logout } = useSDKAuth();
+  const { user, isPending, isAnonymous, login, logout } = { user: null, isPending: false, isAnonymous: true, login: async () => {}, logout: async () => {} } as any;
 
   const role = useMemo(() => detectRole(user?.email), [user?.email]);
 
@@ -114,3 +114,4 @@ export function useAppAuth(): AuthContextType {
   if (!ctx) throw new Error("useAppAuth must be inside AuthProvider");
   return ctx;
 }
+

@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  LockKey, ArrowUpRight, ArrowLeft, ShieldCheck, User,
-  EnvelopeSimple, Eye, EyeSlash,
+  LockKey, ArrowUpRight, ArrowLeft, ShieldCheck, User
 } from "@phosphor-icons/react";
-import { useAppAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 type PageMode = "client" | "register" | "admin";
 
@@ -15,24 +14,36 @@ interface LoginPageProps {
 
 export default function LoginPage({ mode: initialMode = "client" }: LoginPageProps) {
   const [mode, setMode] = useState<PageMode>(initialMode);
-  const { login, isPending: authPending, isAnonymous } = useAppAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  // ⬇️ ESTADOS PARA EMAIL Y PASSWORD
+  const [formEmail, setFormEmail] = useState("");
+  const [formPassword, setFormPassword] = useState("");
+
+  // ⬇️ LOGIN REAL CON SUPABASE
+  const handleLogin = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    try {
-      await login();
-      if (mode === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/portal");
-      }
-    } catch (e) {
-      /* SDK handles modal */
-    } finally {
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: formEmail,
+      password: formPassword
+    });
+
+    if (error) {
+      alert("Email o contraseña incorrectos");
       setLoading(false);
+      return;
     }
+
+    if (mode === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/portal");
+    }
+
+    setLoading(false);
   };
 
   const isAdmin = mode === "admin";
@@ -41,7 +52,7 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
   const titles: Record<PageMode, { eyebrow: string; title: string; subtitle: string }> = {
     client:   { eyebrow: "Client Access",    title: "Sign In",          subtitle: "Access your projects, invoices, and documents." },
     register: { eyebrow: "Create Account",   title: "Get Started",      subtitle: "Create your client account to access the portal." },
-    admin:    { eyebrow: "Admin Access",      title: "Admin Portal",     subtitle: "Sign in with your administrator credentials." },
+    admin:    { eyebrow: "Admin Access",     title: "Admin Portal",     subtitle: "Sign in with your administrator credentials." },
   };
 
   const { eyebrow, title, subtitle } = titles[mode];
@@ -57,7 +68,6 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
         {/* Left panel — decorative */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
           <div className={`absolute inset-0 ${isAdmin ? "bg-gradient-1" : "bg-charcoal"}`} />
-          {/* Grid pattern */}
           <svg className="absolute inset-0 opacity-5" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
@@ -66,17 +76,20 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
           </svg>
-          {/* Radial glow */}
-          <div className="absolute inset-0 bg-radial-gradient pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(212,160,23,0.12) 0%, transparent 65%)" }} />
-          {/* Content */}
+          <div className="absolute inset-0 bg-radial-gradient pointer-events-none"
+               style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(212,160,23,0.12) 0%, transparent 65%)" }} />
           <div className="relative z-10 flex flex-col justify-between p-14">
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 rounded-xl border border-gold/40 bg-gold/10 flex items-center justify-center group-hover:border-gold/80 transition-colors">
                 <span className="font-headline font-bold text-sm text-gold">M</span>
               </div>
               <div>
-                <p className="font-headline font-bold text-[15px] text-warm-white leading-tight">Aménagement<span className="text-gold"> Monzon</span></p>
-                <p className="font-mono text-[9px] text-gray-500 tracking-widest uppercase">Construction · Signature</p>
+                <p className="font-headline font-bold text-[15px] text-warm-white leading-tight">
+                  Aménagement<span className="text-gold"> Monzon</span>
+                </p>
+                <p className="font-mono text-[9px] text-gray-500 tracking-widest uppercase">
+                  Construction · Signature
+                </p>
               </div>
             </Link>
 
@@ -110,7 +123,7 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
 
         {/* Right panel — form */}
         <div className={`flex-1 flex flex-col items-center justify-center px-6 py-12 ${isAdmin ? "bg-charcoal" : "bg-white"}`}>
-          {/* Back link */}
+          
           <div className="w-full max-w-md mb-6">
             <Link to="/"
               className={`inline-flex items-center gap-1.5 text-xs font-sans transition-colors ${isAdmin ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-charcoal"}`}>
@@ -119,7 +132,7 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
           </div>
 
           <div className="w-full max-w-md">
-            {/* Mode switcher (not for admin) */}
+
             {!isAdmin && (
               <div className={`flex gap-1 p-1 rounded-xl mb-8 ${isAdmin ? "bg-gray-800" : "bg-gray-100"}`}>
                 <button onClick={() => setMode("client")}
@@ -146,6 +159,24 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
               <p className={`font-sans text-sm leading-relaxed ${isAdmin ? "text-gray-400" : "text-gray-500"}`}>{subtitle}</p>
             </div>
 
+            {/* Email */}
+            <input
+              type="email"
+              placeholder="Email"
+              value={formEmail}
+              onChange={(e) => setFormEmail(e.target.value)}
+              className="w-full mb-3 px-4 py-3 rounded-lg border border-gray-300 text-sm"
+            />
+
+            {/* Password */}
+            <input
+              type="password"
+              placeholder="Password"
+              value={formPassword}
+              onChange={(e) => setFormPassword(e.target.value)}
+              className="w-full mb-5 px-4 py-3 rounded-lg border border-gray-300 text-sm"
+            />
+
             {/* CTA */}
             <button onClick={handleLogin} disabled={loading}
               className={`w-full flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-sans font-semibold text-sm transition-all cursor-pointer disabled:opacity-60 shadow-lg mb-5 ${isAdmin ? "bg-gold text-charcoal hover:bg-gold-dark shadow-gold/20" : "bg-charcoal text-warm-white hover:bg-gray-800 shadow-black/10"}`}>
@@ -159,14 +190,12 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
               }
             </button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 mb-5">
               <div className={`flex-1 h-px ${isAdmin ? "bg-gray-700" : "bg-gray-200"}`} />
               <span className={`font-mono text-[10px] ${isAdmin ? "text-gray-600" : "text-gray-400"}`}>SECURE · ENCRYPTED · PROTECTED</span>
               <div className={`flex-1 h-px ${isAdmin ? "bg-gray-700" : "bg-gray-200"}`} />
             </div>
 
-            {/* Footer note */}
             {isAdmin ? (
               <div className={`text-center text-xs font-sans ${isAdmin ? "text-gray-600" : "text-gray-400"}`}>
                 <p>Admin email: <span className="font-mono text-gray-500">silviolmonzon@amenagementmonzon.com</span></p>
@@ -181,7 +210,6 @@ export default function LoginPage({ mode: initialMode = "client" }: LoginPagePro
               </p>
             )}
 
-            {/* Admin login link */}
             {!isAdmin && (
               <p className="text-center text-[10px] font-mono text-gray-300 mt-4">
                 <Link to="/admin/login" className="hover:text-gray-500 transition-colors">Admin portal →</Link>

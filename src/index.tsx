@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { AnimaProvider } from "@animaapp/playground-react-sdk";
+
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SplashProvider } from "@/contexts/SplashContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -26,8 +26,7 @@ if ("serviceWorker" in navigator) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AnimaProvider>
-      <ThemeProvider>
+<ThemeProvider>
         <LanguageProvider>
           <SEOProvider>
           <AnimationProvider>
@@ -47,6 +46,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </SEOProvider>
         </LanguageProvider>
       </ThemeProvider>
-    </AnimaProvider>
   </React.StrictMode>
 );

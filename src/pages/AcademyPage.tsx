@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { BookOpen, UsersFour, Wrench, CalendarBlank, Clock, ArrowUpRight } from "@phosphor-icons/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -38,9 +38,10 @@ export default function AcademyPage() {
     coaching: t.academy.filterCoaching, workshop: t.academy.filterWorkshop, event: t.academy.filterEvent,
   };
   const [activeFilter, setActiveFilter] = useState("All");
-  const { data: items } = useQuery("AcademyItem", { where: { status: "published" } });
+  // const { data: items } = useQuery("AcademyItem", { where: { status: "published" } });
+  const items: any = [];
   const list = (items && items.length > 0) ? items : FALLBACK_ITEMS;
-  const filtered = activeFilter === "All" ? list : list.filter(i => i.type === activeFilter);
+  const filtered = activeFilter === "All" ? list : list.filter((i: any) => i.type === activeFilter);
 
   return (
     <>
@@ -140,3 +141,4 @@ export default function AcademyPage() {
     </>
   );
 }
+

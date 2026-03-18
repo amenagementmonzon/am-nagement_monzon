@@ -6,8 +6,12 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { useMutation, useQuery } from "@animaapp/playground-react-sdk";
+// import { useMutation, useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { useAppAuth } from "@/contexts/AuthContext";
+
+// Mock SDK replacements
+const createDBNotif = async () => {};
+const dbNotifs: any[] = [];
 
 /* ══════════════════════════════════════════
    Types
@@ -130,13 +134,6 @@ const NotifCtx = createContext<NotificationContextType | null>(null);
 ══════════════════════════════════════════ */
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, isStaff } = useAppAuth();
-  const { create: createDBNotif } = useMutation("Notification");
-  const { data: dbNotifs } = useQuery("Notification", {
-    where: user ? { recipientId: { eq: user.id } } : undefined,
-    orderBy: { createdAt: "desc" },
-    limit: 50,
-  });
-
   const storedPrefs = (() => {
     try {
       const raw = localStorage.getItem("monzon_notif_prefs");
@@ -153,7 +150,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   /* Seed from DB on mount */
   const seeded = useRef(false);
   useEffect(() => {
-    if (!dbNotifs || seeded.current) return;
+    if (seeded.current) return;
     seeded.current = true;
     const mapped: InAppNotification[] = dbNotifs.map((n) => ({
       id: n.id,
@@ -264,3 +261,4 @@ export function useNotifications(): NotificationContextType {
   if (!ctx) throw new Error("useNotifications must be inside NotificationProvider");
   return ctx;
 }
+

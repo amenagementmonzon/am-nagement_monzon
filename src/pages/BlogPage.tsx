@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
 import PlaceholderPanel from "@/components/PlaceholderPanel";
 import { ArrowUpRight, Article } from "@phosphor-icons/react";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK_POSTS = [
@@ -17,7 +17,9 @@ const FALLBACK_POSTS = [
 
 export default function BlogPage() {
   const { t, lang } = useLanguage();
-  const { data: posts, isPending } = useQuery("BlogPost", { orderBy: { publishedDate: "desc" } });
+  // const { data: posts, isPending } = useQuery("BlogPost", { orderBy: { publishedDate: "desc" } });
+  const posts: any = [];
+  const isPending = false;
   const items = (posts && posts.length > 0) ? posts : FALLBACK_POSTS;
 
   return (
@@ -77,3 +79,4 @@ export default function BlogPage() {
     </>
   );
 }
+

@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════════ */
 
 import React, { createContext, useContext, useMemo } from "react";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LOCAL_BUSINESS_DEFAULTS } from "./seoDefaults";
 import { buildLocalBusinessSchema } from "./jsonLdBuilders";
@@ -21,7 +21,8 @@ const SEOCtx = createContext<SEOContextType>({
 
 export function SEOProvider({ children }: { children: React.ReactNode }) {
   const { lang } = useLanguage();
-  const { data: allConfigs } = useQuery("SEOConfig");
+  // const { data: allConfigs } = useQuery("SEOConfig");
+  const allConfigs: any[] = [];
 
   const configMap = useMemo(() => {
     const m: Record<string, any> = {};
@@ -49,3 +50,4 @@ export function SEOProvider({ children }: { children: React.ReactNode }) {
 export function useSEO() {
   return useContext(SEOCtx);
 }
+
