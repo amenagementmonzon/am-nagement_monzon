@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { Check, ShoppingCart, Repeat, Buildings, Leaf, Snowflake, Sun, Lightning, House, ArrowUpRight, Star, X } from "@phosphor-icons/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -31,6 +31,11 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   emergency:    <Lightning size={18} weight="fill" />,
 };
 
+// Stubs for removed SDK
+const services = [];
+const list = FALLBACK_SERVICES;
+const filtered = list; // Simplified
+
 export default function MaintenancePage() {
   const { t } = useLanguage();
 
@@ -49,10 +54,6 @@ export default function MaintenancePage() {
   const [view, setView] = useState<"services"|"subscriptions">("services");
   const [modalSvc, setModalSvc] = useState<typeof FALLBACK_SERVICES[0] | null>(null);
   const [modalSub, setModalSub] = useState<typeof SUBSCRIPTIONS[0] | null>(null);
-
-  const { data: services } = useQuery("ServiceProduct", { where: { status: "active" } });
-  const list = (services && services.length > 0) ? services : FALLBACK_SERVICES;
-  const filtered = cat === "all" ? list : list.filter(s => s.category === cat);
 
   const handleAdd = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -97,7 +98,7 @@ export default function MaintenancePage() {
                   <>
                     {modalSvc.popular === "yes" && (
                       <div className="px-6 py-2.5 bg-gold text-charcoal text-[10px] font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Star size={11} weight="fill" /> {t.maintenance.popular}
+                        <Star size={11} weight="fill" /> Most Popular
                       </div>
                     )}
                     <div className="p-7">
@@ -107,14 +108,14 @@ export default function MaintenancePage() {
                         </div>
                         <div>
                           <h3 className="font-headline font-bold text-xl text-charcoal leading-tight">{modalSvc.name}</h3>
-                          <span className="font-mono text-[11px] text-gray-400 capitalize">{modalSvc.category.replace("-", " ")}</span>
+                          <span className="font-mono text-[10px] text-gray-400 capitalize">{modalSvc.category.replace("-", " ")}</span>
                         </div>
                       </div>
                       <p className="font-sans text-sm text-gray-500 leading-relaxed mb-6">{modalSvc.description}</p>
                       {feats.length > 0 && (
                         <ul className="flex flex-col gap-2.5 mb-6">
                           {feats.map((f: string) => (
-                            <li key={f} className="flex items-center gap-2.5 text-sm font-sans text-gray-700">
+                            <li key={f} className="flex items-center gap-2 text-sm font-sans text-gray-700">
                               <span className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
                                 <Check size={12} weight="bold" className="text-green-500" />
                               </span>
@@ -130,11 +131,11 @@ export default function MaintenancePage() {
                         </div>
                         <div className="flex gap-2">
                           {modalSvc.subscriptionAvailable === "yes" && (
-                            <button onClick={e => handleAdd(`sub-${modalSvc.id}`, e)} className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-sans font-medium rounded-xl border transition-all cursor-pointer ${added.has(`sub-${modalSvc.id}`) ? "bg-green-500 text-white border-green-500" : "border-gold text-gold hover:bg-gold hover:text-charcoal"}`}>
+                            <button onClick={e => handleAdd(`sub-${modalSvc.id}`, e)} className={`flex items-center gap-1 px-4 py-2.5 text-sm font-sans font-medium rounded-xl border transition-all cursor-pointer ${added.has(`sub-${modalSvc.id}`) ? "bg-green-500 text-white border-green-500" : "border-gold text-gold hover:bg-gold hover:text-charcoal"}`}>
                               <Repeat size={14} /> {added.has(`sub-${modalSvc.id}`) ? t.maintenance.added : t.maintenance.subscribe}
                             </button>
                           )}
-                          <button onClick={e => handleAdd(modalSvc.id, e)} className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-sans font-medium rounded-xl transition-all cursor-pointer ${isAdded ? "bg-green-500 text-white" : "bg-charcoal text-gold hover:bg-gold hover:text-charcoal"}`}>
+                          <button onClick={e => handleAdd(modalSvc.id, e)} className={`flex items-center gap-1 px-4 py-2.5 text-sm font-sans font-medium rounded-xl transition-all cursor-pointer ${isAdded ? "bg-green-500 text-white" : "bg-charcoal text-gold hover:bg-gold hover:text-charcoal"}`}>
                             <ShoppingCart size={14} /> {isAdded ? t.maintenance.added : t.maintenance.add}
                           </button>
                         </div>
@@ -150,7 +151,7 @@ export default function MaintenancePage() {
                   <h3 className="font-headline font-bold text-2xl text-charcoal mb-3">{modalSub.name}</h3>
                   <p className="font-sans text-sm text-gray-500 leading-relaxed mb-6">{modalSub.desc}</p>
                   <div className="border-t border-gray-100 pt-5 flex items-center justify-between gap-3">
-                    <p className="font-headline font-bold text-2xl text-charcoal">{modalSub.price}</p>
+                    <p className="font-headline font-bold text-xl text-charcoal">{modalSub.price}</p>
                     <button className="px-6 py-2.5 text-sm font-sans font-semibold bg-charcoal text-gold rounded-xl hover:bg-gold hover:text-charcoal transition-all duration-300 cursor-pointer">
                       {t.maintenance.getStarted}
                     </button>
@@ -184,7 +185,7 @@ export default function MaintenancePage() {
           <section className="py-16 bg-gray-50">
             <div className="max-w-screen-xl mx-auto px-6 md:px-10">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map(svc => {
+                {list.map((svc: any) => {
                   const feats = (() => { try { return JSON.parse(svc.features); } catch { return []; } })();
                   const isAdded = added.has(svc.id);
                   return (
@@ -275,3 +276,4 @@ export default function MaintenancePage() {
     </>
   );
 }
+

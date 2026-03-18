@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@animaapp/playground-react-sdk";
 import { Plus, Trash, PencilSimple, Check, Eye, EyeSlash, BookOpen, UsersFour, Wrench, CalendarBlank } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// import { useQuery, useMutation } from "@animaapp/playground-react-sdk"; // Removed SDK
 
 const TYPES = ["course","coaching","workshop","event"];
 const TYPE_LABELS: Record<string, string> = { course: "Course", coaching: "Coaching", workshop: "Workshop", event: "Event" };
@@ -14,16 +15,22 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
 
 const EMPTY_FORM = { type: "course", title: "", description: "", price: "", duration: "", instructor: "", thumbnailUrl: "", status: "draft", maxAttendees: "", tags: "" };
 
+// Stubs
+const items: any[] = [];
+const isPending = false;
+const create = async () => {};
+const update = async () => {};
+const remove = async () => {};
+const isMutating = false;
+
 export default function AcademyManagerPanel() {
-  const { data: items, isPending } = useQuery("AcademyItem", { orderBy: { createdAt: "desc" } });
-  const { create, update, remove, isPending: isMutating } = useMutation("AcademyItem");
   const [typeFilter, setTypeFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY_FORM });
 
   const all = items ?? [];
-  const filtered = typeFilter === "all" ? all : all.filter(i => i.type === typeFilter);
+  const filtered = typeFilter === "all" ? all : all.filter((i: any) => i.type === typeFilter);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +69,7 @@ export default function AcademyManagerPanel() {
       <div className="flex gap-2 mb-6 flex-wrap">
         {["all",...TYPES].map(f => (
           <button key={f} onClick={() => setTypeFilter(f)} className={`px-3 py-1.5 text-xs font-mono rounded-xl border transition-all cursor-pointer ${f === typeFilter ? "bg-charcoal text-gold border-charcoal" : "bg-white border-gray-200 text-gray-500 hover:border-gray-400"}`}>
-            {f === "all" ? `All (${all.length})` : `${TYPE_LABELS[f]} (${all.filter(i => i.type === f).length})`}
+            {f === "all" ? `All (${all.length})` : `${TYPE_LABELS[f]} (${all.filter((i: any) => i.type === f).length})`}
           </button>
         ))}
       </div>
@@ -74,37 +81,37 @@ export default function AcademyManagerPanel() {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Type</label>
-                <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none">
-                  {TYPES.map(t => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
+                <select value={form.type as string} onChange={e => setForm((p: any) => ({ ...p, type: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none">
+                  {TYPES.map((t: string) => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
                 </select>
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Title *</label>
-                <input required value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input required value={form.title} onChange={e => setForm((p: any) => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div className="md:col-span-2">
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Description *</label>
-                <textarea required rows={3} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none resize-none" />
+                <textarea required rows={3} value={form.description} onChange={e => setForm((p: any) => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none resize-none" />
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Price *</label>
-                <input required value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} placeholder="e.g. $299" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input required value={form.price} onChange={e => setForm((p: any) => ({ ...p, price: e.target.value }))} placeholder="e.g. $299" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Duration</label>
-                <input value={form.duration} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="e.g. 6 weeks" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input value={form.duration} onChange={e => setForm((p: any) => ({ ...p, duration: e.target.value }))} placeholder="e.g. 6 weeks" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Instructor</label>
-                <input value={form.instructor} onChange={e => setForm(p => ({ ...p, instructor: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input value={form.instructor} onChange={e => setForm((p: any) => ({ ...p, instructor: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Thumbnail URL</label>
-                <input type="url" value={form.thumbnailUrl} onChange={e => setForm(p => ({ ...p, thumbnailUrl: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input type="url" value={form.thumbnailUrl} onChange={e => setForm((p: any) => ({ ...p, thumbnailUrl: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Status</label>
-                <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none">
+                <select value={form.status} onChange={e => setForm((p: any) => ({ ...p, status: e.target.value }))} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                   <option value="archived">Archived</option>
@@ -112,7 +119,7 @@ export default function AcademyManagerPanel() {
               </div>
               <div>
                 <label className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Max Attendees</label>
-                <input type="number" value={form.maxAttendees} onChange={e => setForm(p => ({ ...p, maxAttendees: e.target.value }))} placeholder="Leave blank for unlimited" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
+                <input type="number" value={form.maxAttendees} onChange={e => setForm((p: any) => ({ ...p, maxAttendees: e.target.value }))} placeholder="Leave blank for unlimited" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none" />
               </div>
               <div className="flex gap-2 md:col-span-2 items-center">
                 <button type="submit" disabled={isMutating} className="px-5 py-2 bg-charcoal text-white text-xs font-semibold rounded-xl cursor-pointer hover:bg-gray-800 disabled:opacity-50">{editing ? "Update" : "Publish"}</button>
@@ -131,7 +138,7 @@ export default function AcademyManagerPanel() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filtered.map(item => (
+          {filtered.map((item: any) => (
             <Card key={item.id} className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
@@ -170,3 +177,4 @@ export default function AcademyManagerPanel() {
     </div>
   );
 }
+

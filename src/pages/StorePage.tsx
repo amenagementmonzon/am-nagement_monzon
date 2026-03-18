@@ -1,11 +1,16 @@
-import { useState } from "react";
+npm run buildimport { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import PageShell from "@/components/PageShell";
 import PageHero from "@/components/PageHero";
+// import { useQuery, useMutation } from "@animaapp/playground-react-sdk"; // Removed SDK
 import { Check, ShoppingBag, ShoppingCart, X, ArrowUpRight, Tag, Star, Plus, Minus, CreditCard, Bank, Money, ArrowsLeftRight, Lock, CheckCircle, Copy, Warning } from "@phosphor-icons/react";
-import { useQuery, useMutation } from "@animaapp/playground-react-sdk";
 import { useAppAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+// Stubs for removed SDK
+const products = [];
+const storeItems = []; // Use FALLBACK_STORE below
+const collectionItems = []; // Use FALLBACK_COLLECTION below
 
 /* ── Fallback products ── */
 const FALLBACK_STORE = [
@@ -564,13 +569,11 @@ export default function StorePage() {
   const [cart, setCart] = useState<CartEntry[]>([]);
   const { t } = useLanguage();
 
-  const { data: products } = useQuery("Product");
-  const storeItems = (products && products.length > 0) ? products : FALLBACK_STORE;
-
+  const storeItems = FALLBACK_STORE;
   const collectionItems = FALLBACK_COLLECTION;
 
-  const filteredStore = storeCat === "All" ? storeItems : storeItems.filter(p => p.category === storeCat);
-  const filteredCollection = collectionCat === "All" ? collectionItems : collectionItems.filter(p => p.category === collectionCat);
+  const filteredStore = storeCat === "All" ? storeItems : storeItems.filter((p: any) => p.category === storeCat);
+  const filteredCollection = collectionCat === "All" ? collectionItems : collectionItems.filter((p: any) => p.category === collectionCat);
 
   const addToCart = (id: string, name: string, price: string, image: string, variant?: string) => {
     setCart(prev => {
@@ -625,7 +628,7 @@ export default function StorePage() {
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {filteredStore.map(product => <ProductCard key={product.id} product={product} onAdd={addToCart} />)}
+                  {filteredStore.map((product: any) => <ProductCard key={product.id} product={product} onAdd={addToCart} />)}
                 </div>
               </>
             )}
@@ -644,7 +647,7 @@ export default function StorePage() {
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredCollection.map(product => <ProductCard key={product.id} product={product} onAdd={addToCart} />)}
+                  {filteredCollection.map((product: any) => <ProductCard key={product.id} product={product} onAdd={addToCart} />)}
                 </div>
               </>
             )}
@@ -664,3 +667,4 @@ export default function StorePage() {
     </>
   );
 }
+
