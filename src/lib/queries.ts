@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import supabase from './supabase';\nimport type { Tables } from './supabase';
+import supabase, { Database } from './supabase';
 
 type TableName = keyof Database['public']['Tables'];
 type TableRow<T extends TableName> = Database['public']['Tables'][T]['Row'];
