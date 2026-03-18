@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@animaapp/playground-react-sdk";
+import { useQuery, useMutation } from "@/lib/queries";
 import {
   Plus, Trash, X, Check, FunnelSimple, MagnifyingGlass,
   EnvelopeSimple, Phone, User, PencilSimple, Chat,

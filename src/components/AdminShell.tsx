@@ -16,7 +16,7 @@ import {
   ShieldCheck, UserGear, Plug, BellRinging, DeviceMobile,
   X, CheckCircle, Spinner, Star, Buildings, Play,
 } from "@phosphor-icons/react";
-import { useQuery, useMutation } from "@animaapp/playground-react-sdk";
+import { useQuery, useMutation } from "@/lib/queries";
 import { useAppAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { usePWA } from "@/hooks/usePWA";
