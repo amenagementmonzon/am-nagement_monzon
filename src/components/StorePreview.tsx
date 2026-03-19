@@ -57,7 +57,8 @@ function ProductCard({ product, index }: { product: { image: string; name: strin
 export default function StorePreview() {
   const { t } = useLanguage();
   const headerRef = useRef<HTMLDivElement>(null);
-  const { data: products, isPending } = useQuery("Product", { limit: 4 });
+const products = [];
+const isPending = false;
 
   const items = (products && products.length > 0) ? products : FALLBACK_PRODUCTS;
 
