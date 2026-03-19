@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Plus, Trash, PencilSimple, Check, Eye, EyeSlash, BookOpen, UsersFour, Wrench, CalendarBlank } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// import { useQuery, useMutation } from "@animaapp/playground-react-sdk"; // Removed SDK
-
 const TYPES = ["course","coaching","workshop","event"];
 const TYPE_LABELS: Record<string, string> = { course: "Course", coaching: "Coaching", workshop: "Workshop", event: "Event" };
 const TYPE_ICONS: Record<string, React.ReactNode> = {
