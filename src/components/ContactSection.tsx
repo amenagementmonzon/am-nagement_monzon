@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperPlaneTilt, MapPin, Phone, EnvelopeSimple, CheckCircle } from "@phosphor-icons/react";
-import { useMutation } from "@animaapp/playground-react-sdk";
+// import { useMutation } from "@animaapp/playground-react-sdk";
 
 const PROJECT_TYPES = ["Construction","Renovation","Landscaping","Maintenance","Other"];
 
@@ -11,7 +11,9 @@ export default function ContactSection() {
   const leftRef  = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
 
-  const { create, isPending, error: mutationError } = useMutation("ContactSubmission");
+const create = async () => {};
+const isPending = false;
+const mutationError = null;
 
   useEffect(() => {
     const obs = new IntersectionObserver(

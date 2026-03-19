@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { InstagramLogo, YoutubeLogo, TiktokLogo, ArrowUpRight, Heart, Eye } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@animaapp/playground-react-sdk";
+// import { useQuery } from "@animaapp/playground-react-sdk";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK_POSTS = [

@@ -8,7 +8,7 @@ import {
   ArrowCounterClockwise, X, User, Chat, Briefcase,
   SignOut, PencilSimple, FloppyDisk, CalendarBlank,
 } from "@phosphor-icons/react";
-import { useAuth, useQuery, useMutation } from "@animaapp/playground-react-sdk";
+// import { useAuth, useQuery, useMutation } from "@animaapp/playground-react-sdk";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const STATUS_STYLES: Record<string, string> = {

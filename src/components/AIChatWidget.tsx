@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Robot, X, PaperPlaneTilt, CaretDown, Spinner } from "@phosphor-icons/react";
-import { useMutation } from "@animaapp/playground-react-sdk";
+// import { useMutation } from "@animaapp/playground-react-sdk";
 
 type Message = {
   id: string;
