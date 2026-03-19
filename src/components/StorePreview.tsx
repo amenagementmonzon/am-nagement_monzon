@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, ArrowUpRight, Check } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@animaapp/playground-react-sdk";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK_PRODUCTS = [
