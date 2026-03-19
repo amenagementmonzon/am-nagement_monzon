@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { InstagramLogo, YoutubeLogo, FacebookLogo, TiktokLogo, ArrowUpRight } from "@phosphor-icons/react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useQuery } from "@animaapp/playground-react-sdk";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 
 
@@ -189,7 +189,7 @@ export default function Footer() {
       { label: t.footer.links.sitemap,  href: "#" },
     ],
   };
-  const { data: logoAssets } = useQuery("LogoAsset" as any);
+const logoAssets = [];
   const activeFooterLogo = (logoAssets as any[])?.find((l: any) => l.type === "dark" && l.active === "yes")
     || (logoAssets as any[])?.find((l: any) => l.type === "light" && l.active === "yes");
 
